@@ -700,11 +700,11 @@ void drawStatusInfo(st7306::ST7306Driver& display, const ClockTime& time) {
     char date_str[16];
     snprintf(date_str, sizeof(date_str), "%04d-%02d-%02d", time.year, time.month, time.day);
     int date_x = CLOCK_CENTER_X - 40; // 居中显示
-    display.drawString(date_x, 45, date_str, true);  // 上调5像素：50->45
+    display.drawString(date_x, 25, date_str, true);  // 上调25像素：50->25
     
     // 绘制星期几 (屏幕中间第二行)
     int weekday_x = CLOCK_CENTER_X - 15; // 居中显示
-    display.drawString(weekday_x, 65, weekday_short[time.weekday], true);  // 上调5像素：70->65
+    display.drawString(weekday_x, 45, weekday_short[time.weekday], true);  // 上调25像素：70->45
 }
 
 // 绘制装饰元素
