@@ -7,7 +7,8 @@
 [English](README.md) | 中文
 
 这是一个专为树莓派Pico设计的ST7305和ST7306反射式LCD显示屏的综合性高性能驱动库。该库提供了完整的图形框架，包含硬件抽象层、优化渲染引擎和易于使用的API接口。
-
+![Layout](imgs/analog_clock.jpg)
+![Layout](imgs/maze_game.jpg)
 ## ✨ 特性
 
 - **多设备支持**：完整支持ST7305和ST7306反射式液晶显示控制器
