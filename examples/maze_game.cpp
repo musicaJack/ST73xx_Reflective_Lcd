@@ -10,6 +10,7 @@
 #include "pico_display_gfx.hpp"
 #include "joystick.hpp"
 #include "joystick/joystick_config.hpp"
+#include "spi_config.hpp"
 
 // ==================== 游戏难度设置 ====================
 // 难度级别定义（1-5级）
@@ -34,13 +35,6 @@ const DifficultySettings DIFFICULTY_CONFIGS[5] = {
 const DifficultySettings& CURRENT_DIFFICULTY = DIFFICULTY_CONFIGS[DIFFICULTY_LEVEL - 1];
 
 // ==================== 显示参数 ====================
-// 显示屏引脚定义
-#define PIN_DC   20
-#define PIN_RST  15
-#define PIN_CS   17
-#define PIN_SCLK 18
-#define PIN_SDIN 19
-
 // 屏幕尺寸
 #define SCREEN_WIDTH  300
 #define SCREEN_HEIGHT 400

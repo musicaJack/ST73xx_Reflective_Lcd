@@ -11,14 +11,15 @@
 #include "pico_display_gfx.hpp"
 #include "st73xx_font.hpp"
 #include "gfx_colors.hpp"
+#include "spi_config.hpp"
 #include <cstdio>
 #include <cstring>
 #include <cmath>
 #include <time.h>
 
 // WiFi配置
-#define WIFI_SSID ""
-#define WIFI_PASSWORD ""
+#define WIFI_SSID "PLUG AND PLAY"
+#define WIFI_PASSWORD "PNP-2023"
 
 // NTP配置
 #define NTP_SERVER "182.92.12.11" // 网易NTP服务器
@@ -43,14 +44,6 @@
 #else
 #define NTP_DEBUG(fmt, ...)
 #endif
-
-// SPI和硬件引脚定义
-#define SPI_PORT spi0
-#define PIN_DC   20
-#define PIN_RST  15
-#define PIN_CS   17
-#define PIN_SCLK 18
-#define PIN_SDIN 19
 
 // 复古时钟配置
 namespace vintage_clock_config {

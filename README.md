@@ -176,6 +176,8 @@ The flagship application of this library is a sophisticated analog clock with Wi
 │         ●               │
 │                         │
 └─────────────────────────┘
+![Layout](img/analog_clock.jpg)
+
 ```
 
 ## 📝 API Usage Guide
@@ -395,3 +397,144 @@ A sophisticated timepiece with network connectivity, precision time synchronizat
 - Day of week indication
 - LED feedback during network operations
 - Robust error handling and recovery 
+
+## Hardware Configuration
+
+### SPI Pin Configuration
+The SPI pin configuration is centralized in `include/spi_config.hpp`. You can modify these pins according to your hardware setup:
+
+```cpp
+#define SPI_PORT spi0
+#define PIN_DC   20
+#define PIN_RST  15
+#define PIN_CS   17
+#define PIN_SCLK 18
+#define PIN_SDIN 19
+```
+
+## Function Categories
+
+### Core Functions
+These are the most commonly used functions that are well-tested and used in examples:
+
+#### Display Control
+- `clearDisplay()` - Clear the display buffer
+- `display()` - Update the physical display
+- `displayOn()` - Turn display on/off
+- `displaySleep()` - Set display sleep mode
+- `displayInversion()` - Set display inversion mode
+
+#### Basic Drawing
+- `drawPixel()` / `drawPixelGray()` - Draw a single pixel
+- `drawLine()` - Draw a line
+- `drawCircle()` / `drawFilledCircle()` - Draw circle
+- `drawString()` / `drawChar()` - Draw text
+
+### Extended Functions
+These functions are available but not extensively used in current examples. They are provided for future expansion:
+
+#### Advanced Shapes
+- `drawTriangle()` / `drawFilledTriangle()` - Draw triangle
+- `drawPolygon()` / `drawFilledPolygon()` - Draw polygon
+- `drawRectangle()` / `drawFilledRectangle()` - Draw rectangle
+
+### Example Categories
+
+#### Basic Examples
+- `st7305_demo.cpp` - Basic drawing demo for ST7305
+- `st7306_demo.cpp` - Basic drawing demo for ST7306
+
+#### Network Examples
+- `analog_clock_wifi.cpp` - WiFi-enabled clock with NTP synchronization
+
+#### Game Examples
+- `maze_game.cpp` - Interactive maze game with joystick control 
+
+## Maze Game Example
+
+### Overview
+A maze game based on ST7306 display and joystick controller. Players need to pre-plan the path and watch the character move along the planned path in the maze.
+
+### Hardware Requirements
+- Raspberry Pi Pico development board
+- ST7306 reflective LCD display
+- Joystick controller (I2C interface)
+
+### Hardware Connection
+
+#### ST7306 Display Connection
+```
+Raspberry Pi Pico         ST7306 Display
++---------------+         +---------------+
+|  GPIO18 (SCK) |-------->| SCK          |
+|  GPIO19 (MOSI)|-------->| MOSI         |
+|  GPIO17 (CS)  |-------->| CS           |
+|  GPIO20 (DC)  |-------->| DC           |
+|  GPIO15 (RST) |-------->| RST          |
+|  3.3V         |-------->| VCC          |
+|  GND          |-------->| GND          |
++---------------+         +---------------+
+```
+
+#### Joystick Connection
+```
+Raspberry Pi Pico         Joystick
++---------------+         +---------------+
+|  GPIO6 (SDA)  |-------->| SDA          |
+|  GPIO7 (SCL)  |-------->| SCL          |
+|  3.3V         |-------->| VCC          |
+|  GND          |-------->| GND          |
++---------------+         +---------------+
+```
+
+### Game Rules
+1. **Maze Generation**: A random maze is automatically generated at game start
+2. **Path Planning**: Use joystick directions (up, down, left, right) to pre-plan the character's movement path
+3. **Game Start**: Press the joystick middle button (MID key) to execute the planned path
+4. **Movement Feedback**: The joystick's blue LED flashes once for each step
+5. **Win Condition**: Character successfully reaches the maze exit, green LED flashes for 3 seconds
+6. **Lose Condition**: Character hits a wall or runs out of path before reaching exit, red LED flashes for 3 seconds
+
+### Operation Guide
+
+#### Path Planning Phase
+- **Up/Down/Left/Right**: Add corresponding movement command to path
+- **MID Key**: Start executing the planned path (at least one step required)
+
+#### Game Running Phase
+- Character moves automatically along the planned path
+- Each move executes every 500ms
+- Screen displays current step being executed
+
+#### Game End Phase
+- **Win**: Displays "YOU WIN!", joystick LED turns green
+- **Lose**: Displays "YOU LOST!", joystick LED turns red
+- **MID Key**: Start a new game
+
+### Display Elements
+- **Black Squares**: Walls (impassable)
+- **White Areas**: Paths (passable)
+- **Light Gray**: Starting position
+- **Dark Gray**: End position
+- **Black Dot**: Current character position (during game)
+
+### LED Indicators
+- **Green**: Joystick initialization successful (on for 1 second)
+- **Blue**: Operation detected (direction input or button press)
+- **Blue Flash**: Flashes once per character step
+- **Green Flash**: Success (3 seconds)
+- **Red Flash**: Game over (3 seconds)
+- **Off**: No operation or operation complete
+
+### Technical Features
+- **Maze Generation**: Recursive backtracking algorithm
+- **Path Validation**: BFS algorithm ensures maze is solvable
+- **Input Debounce**: 300ms debounce time
+- **Visual Feedback**: LED color changes and screen display
+- **Error Handling**: Automatic invalid move and boundary checks
+
+### Troubleshooting
+1. **No Display**: Check SPI connections and power
+2. **Joystick Not Responding**: Check I2C connections and address
+3. **Game Freeze**: Restart device, check serial output
+4. **Path Detection Issues**: Adjust joystick threshold parameters 
