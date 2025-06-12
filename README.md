@@ -7,8 +7,10 @@
 English | [中文](README.zh.md)
 
 A comprehensive, high-performance display driver library for ST7305 and ST7306 reflective LCD displays on Raspberry Pi Pico/Pico W. This library provides a complete graphics framework with hardware abstraction, optimized rendering, WiFi connectivity, and easy-to-use APIs.
-![Layout](imgs/analog_clock.jpg)
-![Layout](imgs/maze_game.jpg)
+<p align="center">
+  <img src="imgs/analog_clock.jpg" alt="affect1" width="300"/>
+  <img src="imgs/maze_game.jpg" alt="affect2" width="300"/>
+</p>
 ## ✨ Features
 
 ### Display Support
