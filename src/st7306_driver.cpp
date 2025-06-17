@@ -402,16 +402,30 @@ void ST7306Driver::drawString(uint16_t x, uint16_t y, const char* str, bool colo
 }
 
 void ST7306Driver::drawChar(uint16_t x, uint16_t y, char c, bool color) {
-    if (c < 32 || c > 126) {
-        return;
-    }
-    // 使用get_char_data API获取字符数据
-    const uint8_t* char_data = font::get_char_data(c);
-    for (uint8_t row = 0; row < font::FONT_HEIGHT; row++) {
-        uint8_t byte = char_data[row];
-        for (uint8_t col = 0; col < font::FONT_WIDTH; col++) {
-            bool pixel_is_set_in_font = (byte >> (7 - col)) & 0x01;
-            drawPixel(x + col, y + row, pixel_is_set_in_font ? true : false);
+    if (display_mode_ == DisplayMode::EyeCare) {
+        // 护眼模式下使用灰度
+        uint8_t fg_color = COLOR_EYECARE_FG;
+        uint8_t bg_color = COLOR_EYECARE_BG;
+        // ... 使用drawPixelGray绘制字符 ...
+        const uint8_t* char_data = font::get_char_data(c);
+        if (!char_data) return;
+
+        for (int dy = 0; dy < font::FONT_HEIGHT; dy++) {
+            for (int dx = 0; dx < font::FONT_WIDTH; dx++) {
+                bool pixel = (char_data[dy] >> (7 - dx)) & 0x01;
+                drawPixelGray(x + dx, y + dy, pixel ? fg_color : bg_color);
+            }
+        }
+    } else {
+        // 日间/夜间模式使用原有的黑白显示
+        const uint8_t* char_data = font::get_char_data(c);
+        if (!char_data) return;
+
+        for (int dy = 0; dy < font::FONT_HEIGHT; dy++) {
+            for (int dx = 0; dx < font::FONT_WIDTH; dx++) {
+                bool pixel = (char_data[dy] >> (7 - dx)) & 0x01;
+                drawPixel(x + dx, y + dy, color ? pixel : !pixel);
+            }
         }
     }
 }
@@ -492,6 +506,43 @@ uint16_t ST7306Driver::getStringWidth(std::string_view str) const {
 
 void ST7306Driver::drawString(uint16_t x, uint16_t y, std::string_view str, bool color) {
     drawString(x, y, str.data(), color);
+}
+
+void ST7306Driver::setDisplayMode(DisplayMode mode) {
+    if (display_mode_ != mode) {
+        display_mode_ = mode;
+        updateDisplayMode();
+    }
+}
+
+DisplayMode ST7306Driver::getDisplayMode() const {
+    return display_mode_;
+}
+
+void ST7306Driver::updateDisplayMode() {
+    switch (display_mode_) {
+        case DisplayMode::Day:
+            // 白底黑字模式
+            writeCommand(0x20); // Display Inversion Off
+            writeCommand(0xB9); // Gamma Mode Setting
+            writeData(0x20);   // Mono mode
+            break;
+            
+        case DisplayMode::Night:
+            // 黑底白字模式
+            writeCommand(0x21); // Display Inversion On
+            writeCommand(0xB9); // Gamma Mode Setting
+            writeData(0x20);   // Mono mode
+            break;
+            
+        case DisplayMode::EyeCare:
+            // 米黄背景+深灰字模式
+            writeCommand(0x20); // Display Inversion Off
+            writeCommand(0xB9); // Gamma Mode Setting
+            writeData(0x00);   // Gray mode
+            break;
+    }
+    display(); // 刷新显示
 }
 
 } // namespace st7306 

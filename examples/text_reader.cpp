@@ -89,6 +89,7 @@ private:
     int current_page_;
     int total_pages_;
     std::string filename_;
+    st7306::DisplayMode current_mode_;
 
     // 方向判断
     int determine_joystick_direction(int16_t x, int16_t y) {
@@ -113,10 +114,35 @@ private:
         }
     }
 
+    // 显示模式切换
+    void toggleDisplayMode() {
+        switch (current_mode_) {
+            case st7306::DisplayMode::Day:
+                current_mode_ = st7306::DisplayMode::Night;
+                break;
+            case st7306::DisplayMode::Night:
+                current_mode_ = st7306::DisplayMode::Day;
+                break;
+        }
+        display_.setDisplayMode(current_mode_);
+        // 显示当前模式提示
+        std::string mode_tip;
+        switch (current_mode_) {
+            case st7306::DisplayMode::Day:
+                mode_tip = "切换到日间模式";
+                break;
+            case st7306::DisplayMode::Night:
+                mode_tip = "切换到夜间模式";
+                break;
+        }
+        show_static_page(current_page_, mode_tip);
+    }
+
     void initialize_hardware() {
         display_.initialize();
         display_.clear();
         display_.displayOn(true);
+        display_.setDisplayMode(current_mode_);
         joystick_.begin(i2c1, JOYSTICK_ADDR, PIN_SDA, PIN_SCL, 100000);
         // 绿灯亮1秒表示初始化成功
         joystick_.set_rgb_color(JOYSTICK_LED_GREEN);
@@ -268,6 +294,8 @@ public:
         while (true) {
             int16_t x = joystick_.get_joy_adc_12bits_offset_value_x();
             int16_t y = joystick_.get_joy_adc_12bits_offset_value_y();
+            bool button_pressed = joystick_.get_button_value();
+            
             int direction = determine_joystick_direction(x, y);
             if (direction == 1) { // 上
                 if (current_page > 0) {
@@ -286,6 +314,15 @@ public:
                 }
                 wait_joystick_center();
             }
+            
+            // 按键切换显示模式
+            static bool last_button_state = false;
+            if (button_pressed && !last_button_state) {
+                toggleDisplayMode();
+                wait_joystick_center();
+            }
+            last_button_state = button_pressed;
+            
             sleep_ms(30);
         }
     }
@@ -293,7 +330,8 @@ public:
     TextReader() : 
         display_(PIN_DC, PIN_RST, PIN_CS, PIN_SCLK, PIN_SDIN),
         current_page_(0),
-        filename_("The Little Prince.txt") {
+        filename_("The Little Prince.txt"),
+        current_mode_(st7306::DisplayMode::Day) {
         initialize_hardware();
         total_pages_ = calculate_total_pages_by_simulation();
     }
