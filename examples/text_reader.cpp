@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
-#include "the_little_prince_content.hpp"
+// #include "the_little_prince_content.hpp"  // 暂时注释掉
 
 // 显示配置
 #define LCD_WIDTH 300
@@ -37,7 +37,30 @@
 // 死区阈值
 constexpr int16_t JOY_DEADZONE = 1000;
 
-const std::vector<std::string> text_content = the_little_prince_content;
+// 临时文本内容（替代the_little_prince_content）
+const std::vector<std::string> text_content = {
+    "The Little Prince",
+    "",
+    "Once upon a time, there was a little prince who lived on a planet that was scarcely any bigger than himself.",
+    "",
+    "He needed a sheep to eat the baobab trees that threatened to overrun his tiny world.",
+    "",
+    "So he set out on a journey to find one.",
+    "",
+    "Along the way, he visited many planets and met many strange people.",
+    "",
+    "But none of them could give him what he really needed.",
+    "",
+    "Finally, he came to Earth, where he met a pilot who had crashed in the desert.",
+    "",
+    "The pilot helped him understand what was truly important in life.",
+    "",
+    "And so the little prince learned that the most beautiful things in the world cannot be seen or touched.",
+    "",
+    "They must be felt with the heart.",
+    "",
+    "The End."
+};
 
 const int CHARS_PER_LINE = (LCD_WIDTH - 2 * SIDE_MARGIN) / CHAR_WIDTH; // 33
 const int LINES_PER_PAGE = (LCD_HEIGHT - TOP_MARGIN - BOTTOM_MARGIN) / LINE_HEIGHT; // 23

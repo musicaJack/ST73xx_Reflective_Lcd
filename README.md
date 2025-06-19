@@ -541,3 +541,351 @@ Raspberry Pi Pico         Joystick
 2. **Joystick Not Responding**: Check I2C connections and address
 3. **Game Freeze**: Restart device, check serial output
 4. **Path Detection Issues**: Adjust joystick threshold parameters 
+
+## 📚 Additional Documentation
+
+### 🎮 Maze Game Updates
+
+#### Version 2.5.0 Updates
+
+##### Classic Recursive Backtracking Algorithm ⭐
+- **User Feedback**: Restored to the classic maze generation algorithm based on user suggestions
+- **Algorithm Features**: Uses recursive backtracking to generate traditional maze structures
+- **Maze Quality**: Generates layouts with classic maze characteristics and better maze feel
+- **Preserved Improvements**: Maintains step verification and boundary checking technical improvements
+
+##### Preserved Technical Improvements
+- **Step Verification**: Retains BFS verification mechanism to ensure maze meets difficulty requirements
+- **Multiple Attempts**: Up to 20 attempts to generate mazes that meet requirements
+- **Boundary Checking**: Preserves all boundary checks to ensure no compilation warnings
+- **Fallback Solution**: Uses simple path as backup if recursive backtracking fails
+
+##### Recursive Backtracking Algorithm
+```
+1. Start from the beginning, mark as visited
+2. Randomly select an unvisited neighbor (2-grid spacing)
+3. Remove the wall between current position and neighbor
+4. Recursively visit the neighbor
+5. If no unvisited neighbors, backtrack to previous position
+6. Repeat until all reachable positions are visited
+```
+
+##### Algorithm Advantages
+- **Classic Structure**: Generates traditional maze branch and dead-end structures
+- **Randomness**: Each generation produces different maze layouts
+- **Connectivity**: Ensures path exists from start to finish
+- **Challenge**: Provides true maze exploration experience
+
+##### Technical Implementation
+- **Core Functions**:
+  - `generateMaze()`: Main maze generator with verification logic
+  - `generateBasicMaze()`: Recursive backtracking maze generation
+  - `getUnvisitedNeighbors()`: Get unvisited neighbor nodes
+  - `validateMazeSteps()`: BFS step verification algorithm
+  - `generateOptimizedMaze()`: Simple path fallback solution
+  - `addEntranceExits()`: Entrance and exit opening generation
+
+##### Preserved Improvements
+- **No Compilation Warnings**: All array accesses have boundary checks
+- **Precise Steps**: Ensures generated mazes meet difficulty step requirements
+- **Multiple Attempts**: Improves success rate of generating compliant mazes
+- **Smart Fallback**: Simple path backup when recursive backtracking fails
+
+##### Maze Characteristics
+
+###### Level 5 (20 steps, 27x27 maze)
+- **Classic Structure**: Traditional recursive backtracking algorithm generated maze layout
+- **Branch Paths**: Contains multiple branches and dead ends
+- **Exploratory**: Requires strategic thinking and path planning
+- **Challenging**: Find optimal path within 20-step limit
+
+##### Debug Settings
+
+Current setting is Level 5 (highest difficulty):
+```cpp
+#define DIFFICULTY_LEVEL 5  // Current difficulty level
+```
+
+Difficulty level settings:
+- **Level 1**: 5 steps, 11x11 maze
+- **Level 2**: 8 steps, 15x15 maze  
+- **Level 3**: 12 steps, 19x19 maze
+- **Level 4**: 15 steps, 23x23 maze
+- **Level 5**: 20 steps, 27x27 maze ✅ **Current setting**
+
+##### Debug Information
+
+Game startup outputs information to serial port:
+```
+Attempt 1: Maze requires too many steps, regenerating...
+Attempt 3: Maze requires minimum 19 steps (limit: 20)
+Generated valid maze in 3 attempts
+```
+
+Or using fallback solution:
+```
+Failed to generate random maze, creating optimized maze
+Generated optimized maze targeting 20 steps
+```
+
+### 🌏 Chinese Font Rendering API
+
+A template-based, extensible Chinese font rendering library designed for ST73xx series LCD displays.
+
+#### Features
+
+- 🎯 **Template Design**: Supports different display drivers
+- 🌏 **UTF-8 Support**: Complete Chinese/English mixed text rendering
+- 🔧 **Extensible Architecture**: Supports multiple font data sources
+- 🛡️ **Error Handling**: Robust error checking and recovery mechanisms
+- 📊 **Debug Support**: Built-in character bitmap debugging functionality
+
+#### File Structure
+
+```
+include/
+├── st73xx_font_cn.hpp      # Main header file
+└── st73xx_font_cn.inl      # Inline implementation
+
+src/
+└── st73xx_font_cn.cpp      # Utility function implementation
+
+examples/
+└── chinese_font_test.cpp   # Comprehensive test file
+```
+
+#### Quick Start
+
+##### Basic Usage
+
+```cpp
+#include "st7306_driver.hpp"
+#include "st73xx_font_cn.hpp"
+
+int main() {
+    // Create font manager
+    st73xx_font_cn::FontManager<st7306::ST7306Driver> font_mgr;
+    
+    // Initialize font data
+    const uint8_t* font_data = (const uint8_t*)st73xx_font_cn::DEFAULT_FONT_ADDRESS;
+    font_mgr.initialize(font_data);
+    
+    // Initialize display driver
+    st7306::ST7306Driver lcd(PIN_DC, PIN_RST, PIN_CS, PIN_SCLK, PIN_SDIN);
+    lcd.initialize();
+    
+    // Draw text
+    font_mgr.draw_string(lcd, 10, 10, "Hello World", true);
+    font_mgr.draw_string(lcd, 10, 30, "你好世界", true);
+    lcd.display();
+    
+    return 0;
+}
+```
+
+##### Advanced Usage
+
+```cpp
+// Use custom font data source
+st73xx_font_cn::FlashFontDataSource font_source(custom_font_data);
+st73xx_font_cn::FontRenderer16x16<st7306::ST7306Driver> renderer(&font_source);
+
+// Draw single characters
+renderer.draw_char(lcd, 10, 10, 'A', true);
+renderer.draw_char(lcd, 30, 10, 0x4E2D, true);  // "中"
+```
+
+#### API Reference
+
+##### FontManager Class
+
+Main font management class providing simplified interface.
+
+###### Constructor
+```cpp
+FontManager(const uint8_t* font_data = nullptr)
+```
+
+###### Methods
+- `bool initialize(const uint8_t* font_data = nullptr)` - Initialize font
+- `bool verify_font() const` - Verify font data
+- `void draw_char(DisplayDriver& display, int x, int y, uint32_t char_code, bool color)` - Draw single character
+- `void draw_string(DisplayDriver& display, int x, int y, const char* str, bool color)` - Draw string
+- `uint16_t get_font_version() const` - Get font version
+- `uint16_t get_total_chars() const` - Get total character count
+- `void print_char_bitmap(uint32_t char_code) const` - Print character bitmap (debug)
+
+##### IFontDataSource Interface
+
+Font data source interface that can be extended to support different data sources.
+
+###### Pure Virtual Functions
+- `const uint8_t* get_char_bitmap(uint32_t char_code) const` - Get character bitmap
+- `bool verify_header() const` - Verify file header
+- `uint16_t get_version() const` - Get version number
+- `uint16_t get_total_chars() const` - Get character count
+
+##### FlashFontDataSource Class
+
+Flash memory font data source implementation.
+
+###### Constructor
+```cpp
+FlashFontDataSource(const uint8_t* font_data = nullptr)
+```
+
+###### Methods
+- `void set_font_data(const uint8_t* font_data)` - Set font data address
+
+##### IFontRenderer Interface
+
+Font renderer interface supporting different rendering algorithms.
+
+###### Pure Virtual Functions
+- `void draw_char(DisplayDriver& display, int x, int y, uint32_t char_code, bool color)` - Draw character
+- `void draw_string(DisplayDriver& display, int x, int y, const char* str, bool color)` - Draw string
+
+##### FontRenderer16x16 Class
+
+16x16 pixel font renderer implementation.
+
+###### Constructor
+```cpp
+FontRenderer16x16(const IFontDataSource* font_source = nullptr)
+```
+
+###### Methods
+- `void set_font_source(const IFontDataSource* font_source)` - Set font data source
+- `const IFontDataSource* get_font_source() const` - Get font data source
+
+#### Supported Character Types
+
+- **ASCII Characters** (0x20-0x7E): 95 characters, including space
+- **Full-width Punctuation** (0x3000-0x303F): 64 characters
+- **Full-width Characters** (0xFF00-0xFFEF): 240 characters
+- **Chinese Characters** (0x4E00-0x9FA5): 28,648 characters
+
+#### Font File Format
+
+Font files should contain the following structure:
+- File header (4 bytes): Version number (2 bytes) + Character count (2 bytes)
+- Character data: 32 bytes per character (16x16 pixels)
+
+#### Compilation Configuration
+
+Add to CMakeLists.txt:
+
+```cmake
+# Add source files
+add_executable(YourApp
+    your_main.cpp
+    src/st7306_driver.cpp
+    src/st73xx_font_cn.cpp
+)
+
+# Add include directories
+target_include_directories(YourApp PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/include
+)
+
+# Link libraries
+target_link_libraries(YourApp PUBLIC
+    pico_stdlib
+    hardware_spi
+    hardware_gpio
+    pico_stdio_usb
+)
+```
+
+#### Error Handling
+
+API provides comprehensive error handling mechanisms:
+
+```cpp
+// Check font initialization
+if (!font_mgr.initialize(font_data)) {
+    printf("Font initialization failed!\n");
+    return -1;
+}
+
+// Verify font data
+if (!font_mgr.verify_font()) {
+    printf("Font verification failed!\n");
+    return -1;
+}
+
+// Safe drawing calls (won't crash even if font not initialized)
+font_mgr.draw_string(lcd, 10, 10, "Test", true);
+```
+
+#### Debug Features
+
+```cpp
+// Print font information
+printf("Font Version: %d\n", font_mgr.get_font_version());
+printf("Total Characters: %d\n", font_mgr.get_total_chars());
+
+// Print character bitmap
+font_mgr.print_char_bitmap('A');
+font_mgr.print_char_bitmap(0x4E2D);  // "中"
+```
+
+#### Extensibility
+
+##### Adding New Font Data Sources
+
+```cpp
+class SDCardFontDataSource : public IFontDataSource {
+public:
+    const uint8_t* get_char_bitmap(uint32_t char_code) const override {
+        // Read font data from SD card
+        return read_from_sd_card(char_code);
+    }
+    
+    bool verify_header() const override {
+        // Verify font file on SD card
+        return verify_sd_font_file();
+    }
+    
+    // ... other method implementations
+};
+```
+
+##### Adding New Renderers
+
+```cpp
+template<typename DisplayDriver>
+class FontRenderer24x24 : public IFontRenderer<DisplayDriver> {
+public:
+    void draw_char(DisplayDriver& display, int x, int y, uint32_t char_code, bool color) override {
+        // 24x24 pixel rendering implementation
+    }
+    
+    void draw_string(DisplayDriver& display, int x, int y, const char* str, bool color) override {
+        // String rendering implementation
+    }
+};
+```
+
+#### Example Programs
+
+- `chinese_font_test.cpp`: Comprehensive test program
+
+#### Notes
+
+1. Ensure font file is correctly loaded to Flash address 0x10100000
+2. Font file format must comply with specifications
+3. Display driver must implement `drawPixel(x, y, color)` method
+4. UTF-8 encoded strings are automatically decoded
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📞 Support
+
+If you encounter any issues or have questions, please open an issue on GitHub. 

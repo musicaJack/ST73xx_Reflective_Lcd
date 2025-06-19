@@ -50,15 +50,6 @@ add_executable(AnalogClockWiFi
     src/st73xx_ui.cpp
 )
 
-# Add executable for st73xx_font_demo
-add_executable(st73xx_font_demo
-    examples/st73xx_font_demo.cpp
-    src/fonts/st73xx_font_bin.cpp
-    src/fonts/st73xx_font_stream.cpp
-    src/st7306_driver.cpp
-    src/microsd/micro_sd.cpp
-)
-
 # Add executable for Text Reader
 add_executable(TextReader
     examples/text_reader.cpp
@@ -71,9 +62,9 @@ add_executable(TextReader
 # Add executable for Chinese Font Test
 add_executable(ChineseFontTest
     examples/chinese_font_test.cpp
+    src/st73xx_font_cn.cpp
     src/st7306_driver.cpp
     src/fonts/st73xx_font.cpp
-    src/st73xx_ui.cpp
 )
 
 # Add include directories
@@ -92,11 +83,6 @@ target_include_directories(MazeGame PRIVATE
 
 target_include_directories(AnalogClockWiFi PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/include
-)
-
-target_include_directories(st73xx_font_demo PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/include
-    include/microsd
 )
 
 target_include_directories(TextReader PRIVATE
@@ -142,8 +128,6 @@ target_link_libraries(AnalogClockWiFi PUBLIC
     pico_stdio_uart
 )
 
-target_link_libraries(st73xx_font_demo pico_fatfs pico_stdlib hardware_spi hardware_gpio)
-
 target_link_libraries(TextReader PUBLIC
     pico_stdlib
     hardware_spi
@@ -172,7 +156,6 @@ pico_enable_stdio_uart(MazeGame 1)
 pico_enable_stdio_usb(AnalogClockWiFi 1)
 pico_enable_stdio_uart(AnalogClockWiFi 1)
 
-pico_enable_stdio_uart(st73xx_font_demo 1)
 pico_enable_stdio_uart(TextReader 1)
 
 pico_enable_stdio_usb(ChineseFontTest 1)
@@ -183,6 +166,5 @@ pico_add_extra_outputs(ST7305_Display)
 pico_add_extra_outputs(ST7306_Display)
 pico_add_extra_outputs(MazeGame)
 pico_add_extra_outputs(AnalogClockWiFi)
-pico_add_extra_outputs(st73xx_font_demo)
 pico_add_extra_outputs(TextReader)
 pico_add_extra_outputs(ChineseFontTest)
