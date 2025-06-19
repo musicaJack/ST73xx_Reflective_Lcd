@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include "the_little_prince_content.hpp"
 
 // 显示配置
 #define LCD_WIDTH 300
@@ -36,48 +37,7 @@
 // 死区阈值
 constexpr int16_t JOY_DEADZONE = 1000;
 
-// 文本内容
-const std::vector<std::string> text_content = {
-    "THE LITTLE PRINCE",
-    "",
-    "Antoine De Saint-Exupery",
-    "",
-    "Antoine de Saint-Exupery, who was a French author, journalist and pilot wrote",
-    "The Little Prince in 1943, one year before his death.",
-    "",
-    "The Little Prince appears to be a simple children's tale,",
-    "some would say that it is actually a profound and deeply moving tale,",
-    "written in riddles and laced with philosophy and poetic metaphor.",
-    "",
-    "Once when I was six years old I saw a magnificent picture in a book, called True Stories from",
-    "Nature, about the primeval forest. It was a picture of a boa constrictor in the act of swallowing an",
-    "animal. Here is a copy of the drawing.",
-    "",
-    "In the book it said: \"Boa constrictors swallow their prey whole, without chewing it. After that they",
-    "are not able to move, and they sleep through the six months that they need for digestion.\" I",
-    "pondered deeply, then, over the adventures of the jungle. And after some work with a coloured",
-    "pencil I succeeded in making my first drawing. My Drawing Number One. It looked like this:",
-    "",
-    "I showed my masterpiece to the grown-ups, and asked them whether the drawing frightened them.",
-    "But they answered: \"Frighten? Why should any one be frightened by a hat?\" My drawing was not",
-    "a picture of a hat. It was a picture of a boa constrictor digesting an elephant. But since the grown-",
-    "ups were not able to understand it, I made another drawing: I drew the inside of the boa",
-    "constrictor, so that the grown-ups could see it clearly. They always need to have things explained.",
-    "My Drawing Number Two looked like this: ",
-    "The grown-ups' response, this time, was to advise me to lay aside my drawings of boa constrictors, "
-    "whether from the inside or the outside. They told me that real constrictors in the wild do not eat "
-    "anything except monkeys and little children; as a rule, they are too large to be eaten. Furthermore, "
-    "these drawings upset them to such a degree that they totally lost their appetite. I was lucky enough "
-    "to have a relative who was a tax collector. When he came to visit us, my parents would be sure to ask "
-    "him to take a look at my Drawing Number Two. He would always say, \"That's one of the best drawings "
-    "I've ever seen! You must have a great deal of talent. Draw me quickly something else…\" "
-    "I was then very small. I had to get to my room at night, and lock the door so that I should not be "
-    "disturbed. I had to sleep on the floor. I had to draw again and again. To those grown-ups who "
-    "might read this book, I offer my excuses. The drawings, they are quite good drawings, but the "
-    "words, that is to say my words, are not very good words.",
-    "Now I had to draw a sheep. That was difficult.",
-    "First I drew four good ones, but the grown-ups said that they were not sheep at all. They "
-};
+const std::vector<std::string> text_content = the_little_prince_content;
 
 const int CHARS_PER_LINE = (LCD_WIDTH - 2 * SIDE_MARGIN) / CHAR_WIDTH; // 33
 const int LINES_PER_PAGE = (LCD_HEIGHT - TOP_MARGIN - BOTTOM_MARGIN) / LINE_HEIGHT; // 23
@@ -289,8 +249,8 @@ private:
 
 public:
     void run() {
-        int current_page = 0;
-        show_static_page(current_page);
+        current_page_ = 0;
+        show_static_page(current_page_);
         while (true) {
             int16_t x = joystick_.get_joy_adc_12bits_offset_value_x();
             int16_t y = joystick_.get_joy_adc_12bits_offset_value_y();
@@ -298,19 +258,19 @@ public:
             
             int direction = determine_joystick_direction(x, y);
             if (direction == 1) { // 上
-                if (current_page > 0) {
-                    current_page--;
-                    show_static_page(current_page);
+                if (current_page_ > 0) {
+                    current_page_--;
+                    show_static_page(current_page_);
                 } else {
-                    show_static_page(current_page, "已到首页");
+                    show_static_page(current_page_, "已到首页");
                 }
                 wait_joystick_center();
             } else if (direction == 2) { // 下
-                if (current_page < total_pages_ - 1) {
-                    current_page++;
-                    show_static_page(current_page);
+                if (current_page_ < total_pages_ - 1) {
+                    current_page_++;
+                    show_static_page(current_page_);
                 } else {
-                    show_static_page(current_page, "已到末页");
+                    show_static_page(current_page_, "已到末页");
                 }
                 wait_joystick_center();
             }

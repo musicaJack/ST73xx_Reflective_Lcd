@@ -68,6 +68,14 @@ add_executable(TextReader
     src/joystick/joystick.cpp
 )
 
+# Add executable for Chinese Font Test
+add_executable(ChineseFontTest
+    examples/chinese_font_test.cpp
+    src/st7306_driver.cpp
+    src/fonts/st73xx_font.cpp
+    src/st73xx_ui.cpp
+)
+
 # Add include directories
 target_include_directories(ST7305_Display PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/include # 包含 st7305_driver.hpp 和 custom_font.hpp
@@ -94,6 +102,10 @@ target_include_directories(st73xx_font_demo PRIVATE
 target_include_directories(TextReader PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/include
     ${CMAKE_CURRENT_LIST_DIR}/include/joystick
+)
+
+target_include_directories(ChineseFontTest PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
 # Link libraries
@@ -140,6 +152,13 @@ target_link_libraries(TextReader PUBLIC
     pico_stdio_usb
 )
 
+target_link_libraries(ChineseFontTest PUBLIC
+    pico_stdlib
+    hardware_spi
+    hardware_gpio
+    pico_stdio_usb
+)
+
 # Enable usb output, disable uart output
 pico_enable_stdio_usb(ST7305_Display 1)
 pico_enable_stdio_uart(ST7305_Display 1)
@@ -156,6 +175,9 @@ pico_enable_stdio_uart(AnalogClockWiFi 1)
 pico_enable_stdio_uart(st73xx_font_demo 1)
 pico_enable_stdio_uart(TextReader 1)
 
+pico_enable_stdio_usb(ChineseFontTest 1)
+pico_enable_stdio_uart(ChineseFontTest 1)
+
 # Create map/bin/hex/uf2 files
 pico_add_extra_outputs(ST7305_Display)
 pico_add_extra_outputs(ST7306_Display)
@@ -163,3 +185,4 @@ pico_add_extra_outputs(MazeGame)
 pico_add_extra_outputs(AnalogClockWiFi)
 pico_add_extra_outputs(st73xx_font_demo)
 pico_add_extra_outputs(TextReader)
+pico_add_extra_outputs(ChineseFontTest)

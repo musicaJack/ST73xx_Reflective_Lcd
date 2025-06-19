@@ -21,8 +21,8 @@ if exist build (
 
 mkdir build
 cd build
-cmake .. -G "MinGW Makefiles"
-mingw32-make -j8
+cmake .. -G "Ninja"
+ninja -j8
 
 if %ERRORLEVEL% NEQ 0 (
   echo  build failed!
