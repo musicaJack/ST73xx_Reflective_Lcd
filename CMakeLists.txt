@@ -14,8 +14,6 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the Pico SDK
 pico_sdk_init()
 
-# === 移动到此处 ===
-add_subdirectory(lib/pico_fatfs)
 
 # Add executable for ST7305
 add_executable(ST7305_Display
@@ -57,6 +55,8 @@ add_executable(TextReader
     src/fonts/st73xx_font.cpp
     src/st73xx_ui.cpp
     src/joystick/joystick.cpp
+    src/flash_font_cache.cpp
+    src/hybrid_font_system.cpp
 )
 
 # Add executable for Chinese Font Test
@@ -65,6 +65,13 @@ add_executable(ChineseFontTest
     src/st73xx_font_cn.cpp
     src/st7306_driver.cpp
     src/fonts/st73xx_font.cpp
+    src/flash_font_cache.cpp
+)
+
+# Add executable for Flash Font Test
+add_executable(FlashFontTest
+    examples/flash_font_test.cpp
+    src/flash_font_cache.cpp
 )
 
 # Add include directories
@@ -92,6 +99,26 @@ target_include_directories(TextReader PRIVATE
 
 target_include_directories(ChineseFontTest PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/include
+)
+
+target_include_directories(FlashFontTest PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/include
+)
+
+# Add executable for Hybrid Text Reader
+add_executable(HybridTextReader
+    examples/HybridTextReader.cpp
+    src/st7306_driver.cpp
+    src/fonts/st73xx_font.cpp
+    src/st73xx_ui.cpp
+    src/joystick/joystick.cpp
+    src/flash_font_cache.cpp
+    src/hybrid_font_system.cpp
+)
+
+target_include_directories(HybridTextReader PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/include
+    ${CMAKE_CURRENT_LIST_DIR}/include/joystick
 )
 
 # Link libraries
@@ -143,6 +170,20 @@ target_link_libraries(ChineseFontTest PUBLIC
     pico_stdio_usb
 )
 
+target_link_libraries(FlashFontTest PUBLIC
+    pico_stdlib
+    hardware_gpio
+    pico_stdio_usb
+)
+
+target_link_libraries(HybridTextReader PUBLIC
+    pico_stdlib
+    hardware_spi
+    hardware_gpio
+    hardware_i2c
+    pico_stdio_usb
+)
+
 # Enable usb output, disable uart output
 pico_enable_stdio_usb(ST7305_Display 1)
 pico_enable_stdio_uart(ST7305_Display 1)
@@ -161,6 +202,12 @@ pico_enable_stdio_uart(TextReader 1)
 pico_enable_stdio_usb(ChineseFontTest 1)
 pico_enable_stdio_uart(ChineseFontTest 1)
 
+pico_enable_stdio_usb(FlashFontTest 1)
+pico_enable_stdio_uart(FlashFontTest 1)
+
+pico_enable_stdio_usb(HybridTextReader 1)
+pico_enable_stdio_uart(HybridTextReader 1)
+
 # Create map/bin/hex/uf2 files
 pico_add_extra_outputs(ST7305_Display)
 pico_add_extra_outputs(ST7306_Display)
@@ -168,3 +215,5 @@ pico_add_extra_outputs(MazeGame)
 pico_add_extra_outputs(AnalogClockWiFi)
 pico_add_extra_outputs(TextReader)
 pico_add_extra_outputs(ChineseFontTest)
+pico_add_extra_outputs(FlashFontTest)
+pico_add_extra_outputs(HybridTextReader)

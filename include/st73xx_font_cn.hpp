@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include "flash_font_cache.hpp"
 
 namespace st73xx_font_cn {
 
@@ -22,10 +23,11 @@ public:
     virtual uint16_t get_total_chars() const = 0;
 };
 
-// Flash内存字体数据源
+// Flash内存字体数据源（使用FlashFontCache）
 class FlashFontDataSource : public IFontDataSource {
 private:
-    const uint8_t* font_data_;
+    st73xx_font::FlashFontCache* font_cache_;
+    mutable std::vector<uint8_t> temp_bitmap_;  // 临时存储位图数据
     
 public:
     explicit FlashFontDataSource(const uint8_t* font_data = nullptr);
@@ -37,6 +39,9 @@ public:
     
     // 设置字体数据地址
     void set_font_data(const uint8_t* font_data);
+    
+    // 获取FlashFontCache实例
+    st73xx_font::FlashFontCache* get_cache() const;
 };
 
 // 字体渲染器接口

@@ -15,9 +15,8 @@ enum class FontLayout {
 
 // 显示模式
 enum class DisplayMode {
-    Day,     // 白底黑字
-    Night,   // 黑底白字
-    EyeCare  // 米黄背景+深灰字
+    Day,     // 黑底白字
+    Night    // 白底黑字
 };
 
 class ST7306Driver {
@@ -27,8 +26,6 @@ public:
     static constexpr uint8_t COLOR_BLACK = 0x03;
     static constexpr uint8_t COLOR_GRAY1 = 0x01;
     static constexpr uint8_t COLOR_GRAY2 = 0x02;
-    static constexpr uint8_t COLOR_EYECARE_BG = 0x01;  // 米黄色背景
-    static constexpr uint8_t COLOR_EYECARE_FG = 0x02;  // 深灰色文字
 
     // 显示参数
     static constexpr uint16_t LCD_WIDTH = 300;
