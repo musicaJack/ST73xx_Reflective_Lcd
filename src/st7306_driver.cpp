@@ -66,9 +66,9 @@ void ST7306Driver::initialize() {
 
     initST7306();
     
-    // 初始化后填充白色
-    fill(0x00);
-    display();
+    // 初始化显示缓冲区为白色
+    fill(0x00);  // 填充为白色
+    // 不在初始化时自动显示，让应用程序控制第一次显示时机
 }
 
 void ST7306Driver::initST7306() {
@@ -195,6 +195,18 @@ void ST7306Driver::initST7306() {
     writeCommand(0xBB); // Enable Clear RAM
     writeData(0x4F);   // CLR=0 ; Enable Clear RAM,clear RAM to 0
 
+    // 等待清除完成
+    sleep_ms(10);
+    
+    // 重新设置地址窗口，确保显示正常
+    writeCommand(0x2A); // Column Address Setting
+    writeData(0x05);
+    writeData(0x36);
+
+    writeCommand(0x2B); // Row Address Setting  
+    writeData(0x00);
+    writeData(0xC7);
+
     hpm_mode_ = true;
     lpm_mode_ = false;
 }
@@ -235,29 +247,22 @@ void ST7306Driver::writePoint(uint16_t x, uint16_t y, bool enabled) {
 
 void ST7306Driver::display() {
     setAddress();
-    gpio_put(dc_pin_, 1); // 指示数据传输
-    gpio_put(cs_pin_, 0); // 片选使能
     
-    // 以块的方式传输数据，避免一次性传输过多数据
-    const int BLOCK_SIZE = 1024;
-    for (size_t offset = 0; offset < DISPLAY_BUFFER_LENGTH; offset += BLOCK_SIZE) {
-        size_t chunk_size = std::min(BLOCK_SIZE, (int)(DISPLAY_BUFFER_LENGTH - offset));
-        spi_write_blocking(spi0, display_buffer_ + offset, chunk_size);
-        // sleep_ms(1); // 添加短暂延时，提高稳定性  <--- 注释掉这一行
-    }
+    // 按照原厂Arduino代码的写法传输数据
+    writeData(display_buffer_, DISPLAY_BUFFER_LENGTH);
     
-    gpio_put(cs_pin_, 1); // 片选禁用
+    printf("Display buffer transmitted: %d bytes\n", DISPLAY_BUFFER_LENGTH);
 }
 
 void ST7306Driver::setAddress() {
     // 完全按照原厂驱动代码中的address函数
     writeCommand(0x2A); // Column Address Setting S61~S182
-    writeData(0x05);
-    writeData(0x36); // 0X24-0X17=14 // 14*4*3=168
+    writeData(0x05);    // Start column address
+    writeData(0x36);    // End column address 0x36 = 54
 
-    writeCommand(0x2B); // Row Address Setting G1~G250
-    writeData(0x00);
-    writeData(0xC7); // 192*2=384
+    writeCommand(0x2B); // Row Address Setting G1~G250  
+    writeData(0x00);    // Start row address
+    writeData(0xC7);    // End row address 0xC7 = 199
 
     writeCommand(0x2C); // write image data
 }
@@ -506,20 +511,22 @@ DisplayMode ST7306Driver::getDisplayMode() const {
 void ST7306Driver::updateDisplayMode() {
     switch (display_mode_) {
         case DisplayMode::Day:
-            // 黑底白字模式
-            writeCommand(0x20); // Display Inversion Off
-            writeCommand(0xB9); // Gamma Mode Setting
-            writeData(0x20);   // Mono mode
-            break;
-            
-        case DisplayMode::Night:
             // 白底黑字模式
             writeCommand(0x21); // Display Inversion On
             writeCommand(0xB9); // Gamma Mode Setting
             writeData(0x20);   // Mono mode
             break;
+            
+        case DisplayMode::Night:
+            // 黑底白字模式
+            writeCommand(0x20); // Display Inversion Off
+            writeCommand(0xB9); // Gamma Mode Setting
+            writeData(0x20);   // Mono mode
+            break;
     }
-    display(); // 刷新显示
+    // 不自动刷新显示，让调用者决定何时刷新
 }
+
+
 
 } // namespace st7306 

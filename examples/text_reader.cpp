@@ -123,9 +123,9 @@ private:
 
     void initialize_hardware() {
         display_.initialize();
-        display_.clear();
-        display_.displayOn(true);
-        display_.setDisplayMode(current_mode_);
+        // 严格遵循st7306_demo.cpp的初始化顺序 - 只调用clearDisplay
+        display_.clearDisplay();
+        
         joystick_.begin(i2c1, JOYSTICK_ADDR, PIN_SDA, PIN_SCL, 100000);
         // 绿灯亮1秒表示初始化成功
         joystick_.set_rgb_color(JOYSTICK_LED_GREEN);

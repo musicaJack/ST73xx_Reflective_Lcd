@@ -15,8 +15,8 @@ enum class FontLayout {
 
 // 显示模式
 enum class DisplayMode {
-    Day,     // 黑底白字
-    Night    // 白底黑字
+    Day,     // 白底黑字
+    Night    // 黑底白字
 };
 
 class ST7306Driver {

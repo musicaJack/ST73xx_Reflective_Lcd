@@ -8,6 +8,7 @@
 #include "hardware/spi.h"
 #include "hardware/rtc.h"
 #include "hardware/clocks.h"
+
 #include "pico_display_gfx.hpp"
 #include "st73xx_font.hpp"
 #include "gfx_colors.hpp"

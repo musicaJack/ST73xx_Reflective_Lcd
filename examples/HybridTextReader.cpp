@@ -21,38 +21,71 @@
 #define DISPLAY_HEIGHT (LCD_HEIGHT - 2 * SCREEN_MARGIN) // 360像素
 #define LINE_HEIGHT 16
 
-// 混合文本内容（中英文混合）
+// 混合文本内容（中英日文混合）
 const std::vector<std::string> text_content = {
-    "小王子 - The Little Prince",
+    "小王子 The Little Prince 星の王子さま",
+    "",
+    "=== 中文版 ===",
     "",
     "从前，有一个小王子住在一颗比他身体大不了多少的小行星上。",
-    "Once upon a time, there was a little prince who lived on a planet scarcely bigger than himself.",
     "",
     "他需要一只绵羊来吃那些威胁要占领他小小世界的猴面包树。",
-    "He needed a sheep to eat the baobab trees that threatened to overrun his tiny world.",
     "",
     "于是他踏上了寻找的旅程。",
-    "So he set out on a journey to find one.",
     "",
     "在路上，他拜访了许多星球，遇到了很多奇怪的人。",
-    "Along the way, he visited many planets and met many strange people.",
     "",
     "但是没有人能给他真正需要的东西。",
-    "But none of them could give him what he really needed.",
     "",
     "最后，他来到了地球，在沙漠中遇到了一个坠机的飞行员。",
-    "Finally, he came to Earth, where he met a pilot who had crashed in the desert.",
     "",
     "飞行员帮助他理解了生活中真正重要的东西。",
-    "The pilot helped him understand what was truly important in life.",
     "",
     "小王子明白了世界上最美的东西是看不见也摸不着的。",
-    "The little prince learned that the most beautiful things cannot be seen or touched.",
     "",
     "它们必须用心去感受。",
+    "",
+    "=== English Version ===",
+    "",
+    "Once upon a time, there was a little prince who lived on a planet scarcely bigger than himself.",
+    "",
+    "He needed a sheep to eat the baobab trees that threatened to overrun his tiny world.",
+    "",
+    "So he set out on a journey to find one.",
+    "",
+    "Along the way, he visited many planets and met many strange people.",
+    "",
+    "But none of them could give him what he really needed.",
+    "",
+    "Finally, he came to Earth, where he met a pilot who had crashed in the desert.",
+    "",
+    "The pilot helped him understand what was truly important in life.",
+    "",
+    "The little prince learned that the most beautiful things cannot be seen or touched.",
+    "",
     "They must be felt with the heart.",
     "",
-    "结束 - The End."
+    "=== 日本語版 ===",
+    "",
+    "昔々、自分の体よりも少し大きい小さな星に住む王子様がいました。",
+    "",
+    "彼は小さな世界を占領しようとするバオバブの木を食べてくれる羊を必要としていました。",
+    "",
+    "そこで彼は羊を探す旅に出ました。",
+    "",
+    "道中、彼は多くの星を訪れ、たくさんの変わった人々に出会いました。",
+    "",
+    "しかし、誰も彼が本当に必要としているものを与えることはできませんでした。",
+    "",
+    "最後に、彼は地球にやって来て、砂漠で墜落したパイロットに出会いました。",
+    "",
+    "パイロットは彼が人生で本当に大切なものを理解する手助けをしました。",
+    "",
+    "王子様は世界で最も美しいものは目に見えず、触れることもできないということを学びました。",
+    "",
+    "それらは心で感じなければならないのです。",
+    "",
+    "=== 结束 The End おわり ==="
 };
 
 class HybridTextReader {
@@ -124,10 +157,8 @@ private:
         display_.initialize();
         printf("Display initialized.\n");
         
-        // 严格遵循st7306_demo.cpp的初始化顺序
-        display_.clearDisplay();  // 使用clearDisplay而不是clear
-        display_.displayOn(true);
-        display_.setDisplayMode(current_mode_);
+        // 严格遵循st7306_demo.cpp的初始化顺序 - 只调用clearDisplay
+        display_.clearDisplay();
         
         joystick_.begin(i2c1, JOYSTICK_ADDR, PIN_SDA, PIN_SCL, I2C_FREQUENCY);
         
@@ -411,8 +442,8 @@ public:
         display_(PIN_DC, PIN_RST, PIN_CS, PIN_SCLK, PIN_SDIN),
         font_manager_(),
         current_page_(0),
-        filename_("小王子 - The Little Prince"),
-        current_mode_(st7306::DisplayMode::Night) {
+        filename_("小王子 The Little Prince 星の王子さま"),
+        current_mode_(st7306::DisplayMode::Day) {
         
         initialize_hardware();
     }
@@ -422,8 +453,8 @@ int main() {
     stdio_init_all();
     
     printf("=== 混合字体文本阅读器启动 ===\n");
-    printf("支持中英文混合显示\n");
-    printf("ASCII字符使用8x16字体，中文字符使用16x16字体\n");
+    printf("支持中英日文混合显示\n");
+    printf("ASCII字符使用8x16字体，中文/日文字符使用16x16字体\n");
     
     HybridTextReader reader;
     reader.run();
