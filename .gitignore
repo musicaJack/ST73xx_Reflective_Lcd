@@ -1,0 +1,19 @@
+# CMake generated files
+build/
+
+# IDE files
+.vscode/
+
+# Compiled output
+*.elf
+*.hex
+*.bin
+*.uf2
+*.map
+
+# Other build artifacts
+elf2uf2
+
+# Ignore System files
+.DS_Store
+Thumbs.db 
