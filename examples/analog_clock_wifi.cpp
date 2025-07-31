@@ -19,8 +19,8 @@
 #include <time.h>
 
 // WiFi配置
-#define WIFI_SSID "YANGTOU"
-#define WIFI_PASSWORD "1q2w3e4r!Q@W#E$R"
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
 
 // NTP配置
 #define NTP_SERVER "182.92.12.11" // 网易NTP服务器

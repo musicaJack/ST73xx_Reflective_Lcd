@@ -1753,7 +1753,10 @@ public:
             } else if (current.y > mid_y) {
                 current.y--;
             }
-            maze[current.y][current.x] = PATH;
+            // 添加边界检查
+            if (current.x >= 0 && current.x < maze_size && current.y >= 0 && current.y < maze_size) {
+                maze[current.y][current.x] = PATH;
+            }
         }
         
         // 从中间区域到终点
@@ -1771,7 +1774,10 @@ public:
                     current.y--;
                 }
             }
-            maze[current.y][current.x] = PATH;
+            // 添加边界检查
+            if (current.x >= 0 && current.x < maze_size && current.y >= 0 && current.y < maze_size) {
+                maze[current.y][current.x] = PATH;
+            }
         }
         
         // 专门创建分支点
@@ -1823,7 +1829,10 @@ public:
                     for (int j = 1; j <= branch_length; j++) {
                         int nx = center_x + dx * j;
                         int ny = center_y + dy * j;
-                        maze[ny][nx] = PATH;
+                        // 添加边界检查以避免数组越界
+                        if (nx >= 0 && nx < MAX_MAZE_SIZE && ny >= 0 && ny < MAX_MAZE_SIZE) {
+                            maze[ny][nx] = PATH;
+                        }
                     }
                     branches_created++;
                 }
@@ -1868,17 +1877,17 @@ public:
                 // 创建T型分支：中心点 + 上下左右各2格
                 maze[center_y][center_x] = PATH;
                 
-                // 上下分支
-                maze[center_y - 1][center_x] = PATH;
-                maze[center_y - 2][center_x] = PATH;
-                maze[center_y + 1][center_x] = PATH;
-                maze[center_y + 2][center_x] = PATH;
+                // 上下分支（添加边界检查）
+                if (center_y - 1 >= 0) maze[center_y - 1][center_x] = PATH;
+                if (center_y - 2 >= 0) maze[center_y - 2][center_x] = PATH;
+                if (center_y + 1 < maze_size) maze[center_y + 1][center_x] = PATH;
+                if (center_y + 2 < maze_size) maze[center_y + 2][center_x] = PATH;
                 
-                // 左右分支
-                maze[center_y][center_x - 1] = PATH;
-                maze[center_y][center_x - 2] = PATH;
-                maze[center_y][center_x + 1] = PATH;
-                maze[center_y][center_x + 2] = PATH;
+                // 左右分支（添加边界检查）
+                if (center_x - 1 >= 0) maze[center_y][center_x - 1] = PATH;
+                if (center_x - 2 >= 0) maze[center_y][center_x - 2] = PATH;
+                if (center_x + 1 < maze_size) maze[center_y][center_x + 1] = PATH;
+                if (center_x + 2 < maze_size) maze[center_y][center_x + 2] = PATH;
                 
                 printf("Created simple T-branch at (%d, %d)\n", center_x, center_y);
             }
