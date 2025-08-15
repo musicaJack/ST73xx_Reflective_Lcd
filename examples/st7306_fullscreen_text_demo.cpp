@@ -27,49 +27,49 @@ namespace fullscreen_config {
 // 预定义的满屏文字内容（792个字符，22行）
 const char* FULLSCREEN_TEXT[] = {
     // 第1行 (36字符)
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    "012345678901234567890123456789012345",
     // 第2行 (36字符)
-    "abcdefghijklmnopqrstuvwxyz0123456789",
+    "123456789012345678901234567890123456",
     // 第3行 (36字符)
-    "!@#$%^&*()_+-=[]{}|;':\",./<>?~`\\|",
+    "234567890123456789012345678901234567",
     // 第4行 (36字符)
-    "The quick brown fox jumps over lazy dog",
+    "345678901234567890123456789012345678",
     // 第5行 (36字符)
-    "Pack my box with five dozen liquor jugs",
+    "456789012345678901234567890123456789",
     // 第6行 (36字符)
-    "How vexingly quick daft zebras jump!",
+    "567890123456789012345678901234567890",
     // 第7行 (36字符)
-    "The five boxing wizards jump quickly.",
+    "678901234567890123456789012345678901",
     // 第8行 (36字符)
-    "Sphinx of black quartz, judge my vow.",
+    "789012345678901234567890123456789012",
     // 第9行 (36字符)
-    "Crazy Fredrick bought many very exquisite",
+    "890123456789012345678901234567890123",
     // 第10行 (36字符)
-    "opaque jewels. Sixty zippers were quickly",
+    "901234567890123456789012345678901234",
     // 第11行 (36字符)
-    "picked from the woven jute bag. Pack my",
+    "101112131415161718192021222324252627",
     // 第12行 (36字符)
-    "box with five dozen liquor jugs. How",
+    "112233445566778899001122334455667788",
     // 第13行 (36字符)
-    "vexingly quick daft zebras jump! The",
+    "121314151617181920212223242526272829",
     // 第14行 (36字符)
-    "five boxing wizards jump quickly. Sphinx",
+    "131415161718192021222324252627282930",
     // 第15行 (36字符)
-    "of black quartz, judge my vow. Crazy",
+    "141516171819202122232425262728293031",
     // 第16行 (36字符)
-    "Fredrick bought many very exquisite",
+    "151617181920212223242526272829303132",
     // 第17行 (36字符)
-    "opaque jewels. Sixty zippers were quickly",
+    "161718192021222324252627282930313233",
     // 第18行 (36字符)
-    "picked from the woven jute bag. Pack my",
+    "171819202122232425262728293031323334",
     // 第19行 (36字符)
-    "box with five dozen liquor jugs. How",
+    "181920212223242526272829303132333435",
     // 第20行 (36字符)
-    "vexingly quick daft zebras jump! The",
+    "192021222324252627282930313233343536",
     // 第21行 (36字符)
-    "five boxing wizards jump quickly. END.",
+    "202122232425262728293031323334353637",
     // 第22行 (36字符) - 新增行
-    "EXTRA LINE - Testing 22nd row display!"
+    "212223242526272829303132333435363738"
 };
 
 // 字符计数器

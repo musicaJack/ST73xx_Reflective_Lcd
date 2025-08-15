@@ -360,7 +360,7 @@ if (y + font::FONT_HEIGHT <= LCD_HEIGHT)
 |---------------|------------|-------------------|---------------|----------|
 | 21-line Standard | 756 characters | 94.5% | Perfect alignment | Formal documents |
 | 22-line Extreme | 792 characters | 99.0% | Slight overflow | Information dense |
-| No-margin Extreme | 814 characters | 101.8% | Completely filled | Testing purposes |
+
 
 #### Technical Parameters Summary
 
@@ -373,6 +373,84 @@ if (y + font::FONT_HEIGHT <= LCD_HEIGHT)
 | Max Characters | 792 characters | 22 lines × 36 characters |
 | Display Efficiency | 99.0% | Space utilization |
 | Character Density | 6.6 characters/cm² | Information density |
+
+## 📊 ST7306 Screen Technical Specifications Summary
+
+### 🔧 Basic Hardware Parameters
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| Screen Resolution | 300×400 pixels | Width × Height |
+| Display Type | Reflective LCD | No backlight required, ambient light display |
+| Grayscale Levels | 4 levels | 0x00(White) → 0x01(Light Gray) → 0x02(Dark Gray) → 0x03(Black) |
+| Pixel Storage | 2 bits/pixel | 4 pixels packed into 1 byte |
+| Display Buffer | 37.5KB | 300×400×2 bits ÷ 8 bits |
+
+### 🔤 Font Display Parameters
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| Font Size | 8×16 pixels | Width × Height |
+| Character Spacing | 0 pixels | No extra spacing between characters |
+| Line Spacing | 2 pixels | Spacing between lines |
+| Total Line Height | 18 pixels | Font height (16) + line spacing (2) |
+
+### 📐 Layout Configuration Parameters
+
+| Configuration Type | Margin | Line Spacing | Chars/Line | Max Lines | Total Characters |
+|-------------------|--------|--------------|------------|-----------|------------------|
+| Standard Config | 5 pixels | 2 pixels | 36 chars | 21 lines | 756 characters |
+| Extreme Config | 5 pixels | 2 pixels | 36 chars | 22 lines | 792 characters |
+| No-margin Config | 0 pixels | 0 pixels | 37 chars | 22 lines | 814 characters |
+
+### 📊 Detailed Calculation Analysis
+
+| Calculation Item | Formula | Result | Description |
+|------------------|---------|--------|-------------|
+| Available Width | 300 - 2×5 = 290 pixels | 290 pixels | Screen width minus left/right margins |
+| Characters per Line | 290 ÷ 8 = 36.25 | 36 characters | Round down |
+| Available Height (21 lines) | 400 - 2×5 = 390 pixels | 390 pixels | Screen height minus top/bottom margins |
+| 21 Lines Required Height | 21 × 18 = 378 pixels | 378 pixels | Total height for 21 lines |
+| Available Height (22 lines) | 400 pixels | 400 pixels | Allow margin overflow |
+| 22 Lines Required Height | 22 × 18 = 396 pixels | 396 pixels | Total height for 22 lines |
+| 22nd Line Bottom Position | 5 + 21×18 + 16 = 399 pixels | 399 pixels | Bottom of 22nd line text |
+
+### 🎯 Display Effect Comparison
+
+| Configuration | Characters | Display Efficiency | Visual Effect | Use Case |
+|---------------|------------|-------------------|---------------|----------|
+| 21-line Standard | 756 characters | 94.5% | Perfect alignment | Formal documents |
+| 22-line Extreme | 792 characters | 99.0% | Slight overflow | Information dense |
+| No-margin Extreme | 814 characters | 101.8% | Completely filled | Testing purposes |
+
+### 🔧 Boundary Check Logic
+
+| Check Type | Original Logic | Optimized Logic | Effect |
+|------------|----------------|-----------------|--------|
+| Boundary Condition | y + 16 ≤ 395 | y + 16 ≤ 400 | Allow 22nd line display |
+| 22nd Line Y Coordinate | 383 pixels | 383 pixels | Unchanged |
+| 22nd Line Bottom | 399 pixels | 399 pixels | Unchanged |
+| Boundary Limit | 395 pixels | 400 pixels | Relaxed by 5 pixels |
+| Display Result | 22nd line blocked | 22nd line normal display | ✅ Success |
+
+### ⚡ Performance Metrics
+
+| Metric | Value | Unit | Description |
+|--------|-------|------|-------------|
+| Character Density | 6.6 | characters/cm² | Characters per square centimeter |
+| Information Density | 792 | characters/screen | Maximum characters per screen |
+| Display Efficiency | 99.0% | - | Space utilization in 22-line config |
+| Refresh Rate | Depends on SPI | Hz | Determined by SPI clock frequency |
+| Power Consumption | Very Low | mW | Reflective LCD, no backlight |
+
+### 🎨 Practical Application Recommendations
+
+| Application Type | Recommended Config | Characters | Advantages |
+|------------------|-------------------|------------|------------|
+| Document Reading | 21-line Standard | 756 characters | Visual comfort, reasonable margins |
+| Information Display | 22-line Extreme | 792 characters | Highest information density |
+| System Monitoring | 22-line Extreme | 792 characters | Display more status information |
+| Testing Verification | No-margin Extreme | 814 characters | Verify hardware limits |
 
 ## 🆕 What's New in Version 3.0
 
