@@ -14,123 +14,143 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the Pico SDK
 pico_sdk_init()
 
+# =============================================================================
+# 项目配置变量
+# =============================================================================
 
-# Add executable for ST7305
-add_executable(ST7305_Display
-    examples/st7305_demo.cpp
+# 基础源文件
+set(COMMON_SOURCES
     src/st73xx/st7305_driver.cpp
-    src/fonts/st73xx_font.cpp
-    src/st73xx/st73xx_ui.cpp
-)
-
-# Add executable for ST7306
-add_executable(ST7306_Display
-    examples/st7306_demo.cpp
     src/st73xx/st7306_driver.cpp
     src/fonts/st73xx_font.cpp
     src/st73xx/st73xx_ui.cpp
 )
 
-# Add executable for Maze Game
-add_executable(MazeGame
-    examples/maze_game.cpp
-    src/st73xx/st7306_driver.cpp
-    src/fonts/st73xx_font.cpp
-    src/st73xx/st73xx_ui.cpp
-    src/joystick/joystick.cpp
-)
-
-# Add executable for WiFi Analog Clock
-add_executable(AnalogClockWiFi
-    examples/analog_clock_wifi.cpp
-    src/st73xx/st7306_driver.cpp
-    src/fonts/st73xx_font.cpp
-    src/st73xx/st73xx_ui.cpp
-)
-
-# Add include directories
-target_include_directories(ST7305_Display PRIVATE
+# 基础包含目录
+set(COMMON_INCLUDE_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/include
     ${CMAKE_CURRENT_LIST_DIR}/include/st73xx
     ${CMAKE_CURRENT_LIST_DIR}/include/fonts
 )
 
-target_include_directories(ST7306_Display PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/include
-    ${CMAKE_CURRENT_LIST_DIR}/include/st73xx
-    ${CMAKE_CURRENT_LIST_DIR}/include/fonts
-)
-
-target_include_directories(MazeGame PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/include
-    ${CMAKE_CURRENT_LIST_DIR}/include/st73xx
-    ${CMAKE_CURRENT_LIST_DIR}/include/fonts
-    ${CMAKE_CURRENT_LIST_DIR}/include/joystick
-)
-
-target_include_directories(AnalogClockWiFi PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/include
-    ${CMAKE_CURRENT_LIST_DIR}/include/st73xx
-    ${CMAKE_CURRENT_LIST_DIR}/include/fonts
-)
-
-# Link libraries
-target_link_libraries(ST7305_Display PUBLIC
+# 基础库
+set(COMMON_LIBRARIES
     pico_stdlib
     hardware_spi
     hardware_gpio
     pico_stdio_usb
 )
 
-target_link_libraries(ST7306_Display PUBLIC
-    pico_stdlib
-    hardware_spi
-    hardware_gpio
-    pico_stdio_usb
+# 特殊库
+set(JOYSTICK_LIBRARIES
+    hardware_i2c
 )
 
-target_link_libraries(MazeGame PUBLIC
-    pico_stdlib
-    hardware_spi
-    hardware_gpio
-    hardware_i2c                  # 添加 I2C 库用于joystick
-    pico_stdio_usb
-)
-
-target_link_libraries(AnalogClockWiFi PUBLIC
-    pico_stdlib
-    hardware_spi
-    hardware_gpio
+set(WIFI_LIBRARIES
     hardware_rtc
     hardware_clocks
     pico_cyw43_arch_lwip_poll
-    pico_stdio_usb
     pico_stdio_uart
 )
 
+# =============================================================================
+# 辅助函数
+# =============================================================================
+
+# 创建ST7305可执行文件的函数
+function(create_st7305_target TARGET_NAME MAIN_SOURCE)
+    add_executable(${TARGET_NAME}
+        ${MAIN_SOURCE}
+        src/st73xx/st7305_driver.cpp
+        src/fonts/st73xx_font.cpp
+        src/st73xx/st73xx_ui.cpp
+    )
+    
+    target_include_directories(${TARGET_NAME} PRIVATE ${COMMON_INCLUDE_DIRS})
+    target_link_libraries(${TARGET_NAME} PUBLIC ${COMMON_LIBRARIES})
+    
+    pico_enable_stdio_usb(${TARGET_NAME} 1)
+    pico_enable_stdio_uart(${TARGET_NAME} 1)
+    pico_add_extra_outputs(${TARGET_NAME})
+endfunction()
+
+# 创建ST7306可执行文件的函数
+function(create_st7306_target TARGET_NAME MAIN_SOURCE)
+    add_executable(${TARGET_NAME}
+        ${MAIN_SOURCE}
+        src/st73xx/st7306_driver.cpp
+        src/fonts/st73xx_font.cpp
+        src/st73xx/st73xx_ui.cpp
+    )
+    
+    target_include_directories(${TARGET_NAME} PRIVATE ${COMMON_INCLUDE_DIRS})
+    target_link_libraries(${TARGET_NAME} PUBLIC ${COMMON_LIBRARIES})
+    
+    pico_enable_stdio_usb(${TARGET_NAME} 1)
+    pico_enable_stdio_uart(${TARGET_NAME} 1)
+    pico_add_extra_outputs(${TARGET_NAME})
+endfunction()
+
+# 创建带特殊库的ST7306可执行文件的函数
+function(create_st7306_target_with_libs TARGET_NAME MAIN_SOURCE EXTRA_LIBS)
+    add_executable(${TARGET_NAME}
+        ${MAIN_SOURCE}
+        src/st73xx/st7306_driver.cpp
+        src/fonts/st73xx_font.cpp
+        src/st73xx/st73xx_ui.cpp
+    )
+    
+    target_include_directories(${TARGET_NAME} PRIVATE ${COMMON_INCLUDE_DIRS})
+    target_link_libraries(${TARGET_NAME} PUBLIC ${COMMON_LIBRARIES} ${EXTRA_LIBS})
+    
+    pico_enable_stdio_usb(${TARGET_NAME} 1)
+    pico_enable_stdio_uart(${TARGET_NAME} 1)
+    pico_add_extra_outputs(${TARGET_NAME})
+endfunction()
+
+# 创建带特殊包含目录的ST7306可执行文件的函数
+function(create_st7306_target_with_includes TARGET_NAME MAIN_SOURCE EXTRA_INCLUDES EXTRA_SOURCES EXTRA_LIBS)
+    add_executable(${TARGET_NAME}
+        ${MAIN_SOURCE}
+        src/st73xx/st7306_driver.cpp
+        src/fonts/st73xx_font.cpp
+        src/st73xx/st73xx_ui.cpp
+        ${EXTRA_SOURCES}
+    )
+    
+    target_include_directories(${TARGET_NAME} PRIVATE ${COMMON_INCLUDE_DIRS} ${EXTRA_INCLUDES})
+    target_link_libraries(${TARGET_NAME} PUBLIC ${COMMON_LIBRARIES} ${EXTRA_LIBS})
+    
+    pico_enable_stdio_usb(${TARGET_NAME} 1)
+    pico_enable_stdio_uart(${TARGET_NAME} 1)
+    pico_add_extra_outputs(${TARGET_NAME})
+endfunction()
 
 
+# =============================================================================
+# 创建可执行文件
+# =============================================================================
+
+# ST7305 目标
+create_st7305_target(ST7305_Display examples/st7305_demo.cpp)
+
+# ST7306 基础目标
+create_st7306_target(ST7306_Display examples/st7306_demo.cpp)
+create_st7306_target(st7306_fullscreen_text_demo examples/st7306_fullscreen_text_demo.cpp)
 
 
-# Enable usb output, disable uart output
-pico_enable_stdio_usb(ST7305_Display 1)
-pico_enable_stdio_uart(ST7305_Display 1)
+# 带特殊库的目标
+create_st7306_target_with_includes(MazeGame 
+    examples/maze_game.cpp 
+    "${CMAKE_CURRENT_LIST_DIR}/include/joystick"
+    "src/joystick/joystick.cpp"
+    "${JOYSTICK_LIBRARIES}"
+)
 
-pico_enable_stdio_usb(ST7306_Display 1)
-pico_enable_stdio_uart(ST7306_Display 1)
-
-pico_enable_stdio_usb(MazeGame 1)
-pico_enable_stdio_uart(MazeGame 1)
-
-pico_enable_stdio_usb(AnalogClockWiFi 1)
-pico_enable_stdio_uart(AnalogClockWiFi 1)
-
-
+create_st7306_target_with_libs(AnalogClockWiFi 
+    examples/analog_clock_wifi.cpp 
+    "${WIFI_LIBRARIES}"
+)
 
 
-# Create map/bin/hex/uf2 files
-pico_add_extra_outputs(ST7305_Display)
-pico_add_extra_outputs(ST7306_Display)
-pico_add_extra_outputs(MazeGame)
-pico_add_extra_outputs(AnalogClockWiFi)
 
