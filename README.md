@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Raspberry%20Pi%20Pico%20W-red.svg)](https://www.raspberrypi.com/products/raspberry-pi-pico/)
-[![Version](https://img.shields.io/badge/Version-3.0.0-green.svg)](https://github.com/musicaJack/ST7305_2.9_Reflective_Lcd/releases)
+[![Version](https://img.shields.io/badge/Version-3.1.0-green.svg)](https://github.com/musicaJack/ST7305_2.9_Reflective_Lcd/releases)
 
 English | [中文](README.zh.md)
 
@@ -20,6 +20,14 @@ A comprehensive, high-performance display driver library for ST7305 and ST7306 r
 - **Template Design**: Modern C++ template-based architecture for type safety and performance
 - **Hardware Abstraction**: Clean separation between hardware drivers and graphics rendering
 - **Optimized SPI**: High-performance SPI communication with configurable parameters
+
+### Input Control (NEW)
+- **JS16TMR Joystick**: Direct ADC-based joystick support using RP2040's built-in ADC
+- **Dual Joystick Support**: Simultaneous support for both I2C and JS16TMR joysticks
+- **High Precision**: 12-bit ADC resolution for accurate joystick position detection
+- **Low Latency**: Direct hardware access for fast response times
+- **Advanced Processing**: Built-in filtering, calibration, deadzone, and rotation support
+- **LED Feedback**: Real-time LED status indicators for joystick operations
 
 ### WiFi & Networking (NEW)
 - **WiFi Connectivity**: Built-in WiFi support for Raspberry Pi Pico W
@@ -44,6 +52,7 @@ The project follows a modern modular design with clear separation of concerns:
 - **Hardware Drivers** (`st7305_driver.cpp`, `st7306_driver.cpp`): Low-level display controller implementations
 - **UI Abstraction** (`st73xx_ui.cpp/hpp`): Hardware-agnostic graphics interface (Adafruit GFX-style)
 - **Graphics Engine** (`pico_display_gfx.hpp/inl`): Template-based graphics rendering engine
+- **JS16TMR Joystick** (`js16tmr_joystick/`): Direct ADC-based joystick input system
 - **WiFi NTP Clock** (`analog_clock_wifi.cpp`): Complete WiFi-enabled analog clock application
 - **Font System** (`fonts/st73xx_font.cpp`): Comprehensive font rendering with layout options
 - **Examples** (`examples/`): Comprehensive demo applications showcasing features
@@ -55,6 +64,9 @@ The project follows a modern modular design with clear separation of concerns:
 │   ├── st7305_driver.cpp         # ST7305 controller driver
 │   ├── st7306_driver.cpp         # ST7306 controller driver
 │   ├── st73xx_ui.cpp             # UI abstraction layer
+│   ├── js16tmr_joystick/         # JS16TMR joystick implementation
+│   │   ├── js16tmr_joystick_direct.cpp    # Direct ADC joystick
+│   │   └── js16tmr_joystick_handler.cpp   # Joystick processor
 │   └── fonts/
 │       └── st73xx_font.cpp       # Font data and rendering
 ├── include/                       # Header files directory
@@ -64,12 +76,17 @@ The project follows a modern modular design with clear separation of concerns:
 │   ├── pico_display_gfx.hpp      # Template graphics engine
 │   ├── pico_display_gfx.inl      # Template implementation
 │   ├── st73xx_font.hpp           # Font system interface
-│   └── gfx_colors.hpp            # Color definitions
+│   ├── gfx_colors.hpp            # Color definitions
+│   └── js16tmr_joystick/         # JS16TMR joystick headers
+│       ├── js16tmr_joystick_direct.hpp    # Direct ADC interface
+│       └── js16tmr_joystick_handler.hpp   # Joystick processor
 ├── examples/                      # Example applications
 │   ├── st7305_demo.cpp           # ST7305 comprehensive demo
 │   ├── st7306_demo.cpp           # ST7306 demonstration
-│   └── analog_clock_wifi.cpp     # WiFi NTP Analog Clock (NEW)
-├── lwipopts/                      # Network configuration (NEW)
+│   ├── analog_clock_wifi.cpp     # WiFi NTP Analog Clock
+│   ├── maze_game.cpp             # I2C joystick maze game
+│   └── snake_game_js16tmr.cpp    # JS16TMR joystick snake game (NEW)
+├── lwipopts/                      # Network configuration
 │   └── lwipopts.h                # lwIP configuration for WiFi
 ├── build/                         # Build output directory
 ├── CMakeLists.txt                # CMake build configuration
@@ -91,6 +108,12 @@ The project follows a modern modular design with clear separation of concerns:
 - Stable 3.3V power supply
 - WiFi network access
 
+#### For JS16TMR Joystick Games
+- Raspberry Pi Pico or Pico W
+- ST7306 reflective LCD display
+- JS16TMR joystick module
+- Breadboard and jumper wires
+
 ### Hardware Connections
 
 #### ST7305/ST7306 Display Connection
@@ -102,6 +125,19 @@ Raspberry Pi Pico W       ST7305/ST7306 Display
 |  GPIO17 (CS)  |-------->| CS                |
 |  GPIO20 (DC)  |-------->| DC                |
 |  GPIO15 (RST) |-------->| RST               |
+|  3.3V         |-------->| VCC               |
+|  GND          |-------->| GND               |
++---------------+         +-------------------+
+```
+
+#### JS16TMR Joystick Connection
+```
+Raspberry Pi Pico W       JS16TMR Joystick
++---------------+         +-------------------+
+|  GPIO26 (ADC0)|-------->| X-axis Output     |
+|  GPIO27 (ADC1)|-------->| Y-axis Output     |
+|  GPIO22       |-------->| Switch Output     |
+|  GPIO25       |-------->| LED (optional)    |
 |  3.3V         |-------->| VCC               |
 |  GND          |-------->| GND               |
 +---------------+         +-------------------+
@@ -138,6 +174,70 @@ make
    - Hold BOOTSEL button and connect USB cable
    - Copy `AnalogClockWiFi.uf2` to the mounted RPI-RP2 drive
    - The Pico W will restart and begin WiFi connection
+
+5. **For JS16TMR Joystick Games:**
+   - Copy `SnakeGameJS16TMR.uf2` to the mounted RPI-RP2 drive
+   - The joystick will auto-calibrate on startup
+
+## 🎮 JS16TMR Joystick Integration
+
+The library now includes comprehensive support for the JS16TMR joystick, providing direct ADC-based input control for interactive applications.
+
+### Features
+
+- **Direct ADC Connection**: Uses RP2040's built-in ADC for X/Y axis readings
+- **High Precision**: 12-bit ADC resolution for accurate position detection
+- **Auto-Calibration**: Automatic center point calibration on startup
+- **Advanced Processing**: Built-in filtering, deadzone, and hysteresis control
+- **Rotation Support**: Configurable joystick orientation (0°, 90°, 180°, 270°)
+- **LED Feedback**: Real-time LED status indicators for operations
+- **Dual Joystick Support**: Works alongside existing I2C joystick functionality
+
+### Hardware Specifications
+
+- **X-axis**: GP26 (ADC0) - 12-bit analog input
+- **Y-axis**: GP27 (ADC1) - 12-bit analog input  
+- **Button**: GP22 - Digital input with internal pull-up
+- **LED**: GP25 - Status indicator (Pico onboard LED)
+
+### Usage Example
+
+```cpp
+#include "js16tmr_joystick/js16tmr_joystick_direct.hpp"
+#include "js16tmr_joystick/js16tmr_joystick_handler.hpp"
+
+// Initialize joystick
+JS16TMRJoystickDirect joystick;
+js16tmr::JS16TMRJoystickHandler handler;
+
+// Setup
+joystick.begin();
+handler.initialize(&joystick);
+
+// Configure parameters
+handler.setDeadzone(200);
+handler.setDirectionRatio(1.0f);
+handler.setRotation(js16tmr::JoystickRotation::ROTATION_180);
+
+// Main loop
+while (true) {
+    handler.update();
+    js16tmr::JoystickDirection direction = handler.getCurrentDirection();
+    bool button = handler.isButtonPressed();
+    
+    // Process input...
+}
+```
+
+### Snake Game Example
+
+The library includes a complete Snake game implementation showcasing JS16TMR joystick capabilities:
+
+- **Classic Snake Gameplay**: Snake grows when eating food, dies on collision
+- **Reflective LCD Optimized**: Uses 4-level grayscale for clear visibility
+- **Grid-based Movement**: Precise joystick control with visual feedback
+- **Score Tracking**: Real-time score display and game state management
+- **Auto-calibration**: Joystick automatically calibrates on startup
 
 ## 📱 WiFi NTP Analog Clock
 
@@ -283,7 +383,8 @@ The project supports multiple build targets:
 - **ST7306_Display**: ST7306 demonstration application  
 - **st7306_fullscreen_text_demo**: ST7306 fullscreen text display demo (792 characters, 22 lines)
 - **AnalogClockWiFi**: WiFi NTP Analog Clock (requires Pico W)
-- **MazeGame**: Interactive maze game demonstration
+- **MazeGame**: Interactive maze game with I2C joystick
+- **SnakeGameJS16TMR**: Snake game with JS16TMR joystick (NEW)
 
 Each target includes comprehensive examples showcasing the respective features.
 
@@ -452,9 +553,18 @@ if (y + font::FONT_HEIGHT <= LCD_HEIGHT)
 | System Monitoring | 22-line Extreme | 792 characters | Display more status information |
 | Testing Verification | No-margin Extreme | 814 characters | Verify hardware limits |
 
-## 🆕 What's New in Version 3.0
+## 🆕 What's New in Version 3.1
 
 ### Major New Features
+
+1. **JS16TMR Joystick Integration**: Direct ADC-based joystick support using RP2040's built-in ADC
+2. **Snake Game**: Complete Snake game implementation with JS16TMR joystick control
+3. **Dual Joystick Support**: Simultaneous support for both I2C and JS16TMR joysticks
+4. **Advanced Joystick Processing**: Built-in filtering, calibration, deadzone, and rotation support
+5. **Reflective LCD Optimization**: 4-level grayscale rendering for optimal visibility
+6. **Auto-Calibration**: Automatic joystick center point calibration on startup
+
+### Version 3.0 Features (Retained)
 
 1. **WiFi NTP Clock**: Complete analog clock application with WiFi connectivity
 2. **NTP Time Synchronization**: Automatic time sync with configurable intervals

@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Raspberry%20Pi%20Pico-red.svg)](https://www.raspberrypi.com/products/raspberry-pi-pico/)
-[![Version](https://img.shields.io/badge/Version-2.0.0-green.svg)](https://github.com/musicaJack/ST7305_2.9_Reflective_Lcd/releases)
+[![Version](https://img.shields.io/badge/Version-3.1.0-green.svg)](https://github.com/musicaJack/ST7305_2.9_Reflective_Lcd/releases)
 
 [English](README.md) | 中文
 
@@ -19,6 +19,9 @@
 - **模板设计**：现代C++模板架构，确保类型安全和高性能
 - **硬件抽象**：硬件驱动与图形渲染的清晰分离
 - **优化SPI**：高性能SPI通信，支持可配置参数
+- **JS16TMR摇杆**：基于RP2040内置ADC的直接摇杆输入支持（新增）
+- **双摇杆支持**：同时支持I2C和JS16TMR摇杆（新增）
+- **高精度输入**：12位ADC分辨率，提供精确的摇杆位置检测（新增）
 - **字体系统**：内置字体支持，可自定义布局和大小
 - **颜色管理**：支持灰度和单色渲染模式
 - **旋转支持**：显示旋转和坐标变换
@@ -33,6 +36,7 @@
 - **硬件驱动** (`st7305_driver.cpp`, `st7306_driver.cpp`)：底层显示控制器实现
 - **UI抽象层** (`st73xx_ui.cpp/hpp`)：硬件无关的图形接口 (Adafruit GFX风格)
 - **图形引擎** (`pico_display_gfx.hpp/inl`)：基于模板的图形渲染引擎
+- **JS16TMR摇杆** (`js16tmr_joystick/`)：基于ADC的直接摇杆输入系统（新增）
 - **字体系统** (`fonts/st73xx_font.cpp`)：全面的字体渲染，支持布局选项
 - **示例程序** (`examples/`)：展示功能的综合演示应用
 
@@ -41,23 +45,34 @@
 ```
 ├── src/                           # 源代码目录
 │   ├── st7305_driver.cpp         # ST7305控制器驱动
-│   ├── st7306_driver.cpp         # ST7306控制器驱动 (新增)
-│   ├── st73xx_ui.cpp             # UI抽象层 (新增)
+│   ├── st7306_driver.cpp         # ST7306控制器驱动
+│   ├── st73xx_ui.cpp             # UI抽象层
+│   ├── js16tmr_joystick/         # JS16TMR摇杆实现 (新增)
+│   │   ├── js16tmr_joystick_direct.cpp    # 直接ADC摇杆
+│   │   └── js16tmr_joystick_handler.cpp   # 摇杆处理器
 │   └── fonts/
-│       └── st73xx_font.cpp       # 字体数据和渲染 (增强)
+│       └── st73xx_font.cpp       # 字体数据和渲染
 ├── include/                       # 头文件目录
 │   ├── st7305_driver.hpp         # ST7305驱动接口
-│   ├── st7306_driver.hpp         # ST7306驱动接口 (新增)
-│   ├── st73xx_ui.hpp             # UI抽象接口 (新增)
-│   ├── pico_display_gfx.hpp      # 模板图形引擎 (新增)
-│   ├── pico_display_gfx.inl      # 模板实现 (新增)
-│   ├── st73xx_font.hpp           # 字体系统接口 (新增)
-│   └── gfx_colors.hpp            # 颜色定义 (新增)
+│   ├── st7306_driver.hpp         # ST7306驱动接口
+│   ├── st73xx_ui.hpp             # UI抽象接口
+│   ├── pico_display_gfx.hpp      # 模板图形引擎
+│   ├── pico_display_gfx.inl      # 模板实现
+│   ├── st73xx_font.hpp           # 字体系统接口
+│   ├── gfx_colors.hpp            # 颜色定义
+│   └── js16tmr_joystick/         # JS16TMR摇杆头文件 (新增)
+│       ├── js16tmr_joystick_direct.hpp    # 直接ADC接口
+│       └── js16tmr_joystick_handler.hpp   # 摇杆处理器
 ├── examples/                      # 示例应用
-│   ├── st7305_demo.cpp           # ST7305综合演示 (增强)
-│   └── st7306_demo.cpp           # ST7306演示 (新增)
+│   ├── st7305_demo.cpp           # ST7305综合演示
+│   ├── st7306_demo.cpp           # ST7306演示
+│   ├── analog_clock_wifi.cpp     # WiFi NTP时钟
+│   ├── maze_game.cpp             # I2C摇杆迷宫游戏
+│   └── snake_game_js16tmr.cpp    # JS16TMR摇杆贪吃蛇游戏 (新增)
+├── lwipopts/                      # 网络配置
+│   └── lwipopts.h                # lwIP WiFi配置
 ├── build/                         # 构建输出目录
-├── CMakeLists.txt                # CMake构建配置 (更新)
+├── CMakeLists.txt                # CMake构建配置
 └── build_pico.bat                # Windows构建脚本
 ```
 
@@ -88,6 +103,19 @@
 |  GPIO17 (CS)  |-------->| CS           |
 |  GPIO20 (DC)  |-------->| DC           |
 |  GPIO15 (RST) |-------->| RST          |
+|  3.3V         |-------->| VCC          |
+|  GND          |-------->| GND          |
++---------------+         +---------------+
+```
+
+#### JS16TMR摇杆连接
+```
+树莓派Pico              JS16TMR摇杆
++---------------+         +---------------+
+|  GPIO26 (ADC0)|-------->| X轴输出       |
+|  GPIO27 (ADC1)|-------->| Y轴输出       |
+|  GPIO22       |-------->| 开关输出       |
+|  GPIO25       |-------->| LED (可选)    |
 |  3.3V         |-------->| VCC          |
 |  GND          |-------->| GND          |
 +---------------+         +---------------+
@@ -219,9 +247,78 @@ void windmillAnimation() {
 }
 ```
 
-## 🆕 版本2.0新特性
+## 🎮 JS16TMR摇杆集成
 
-### 主要增强功能
+该库现在包含对JS16TMR摇杆的全面支持，为交互式应用提供基于ADC的直接输入控制。
+
+### 特性
+
+- **直接ADC连接**：使用RP2040内置ADC进行X/Y轴读取
+- **高精度**：12位ADC分辨率，提供精确的位置检测
+- **自动校准**：启动时自动校准中心点
+- **高级处理**：内置滤波、死区控制和滞回控制
+- **旋转支持**：可配置摇杆方向（0°、90°、180°、270°）
+- **LED反馈**：实时LED状态指示器
+- **双摇杆支持**：与现有I2C摇杆功能并存
+
+### 硬件规格
+
+- **X轴**：GP26 (ADC0) - 12位模拟输入
+- **Y轴**：GP27 (ADC1) - 12位模拟输入  
+- **按钮**：GP22 - 数字输入，内部上拉
+- **LED**：GP25 - 状态指示器（Pico板载LED）
+
+### 使用示例
+
+```cpp
+#include "js16tmr_joystick/js16tmr_joystick_direct.hpp"
+#include "js16tmr_joystick/js16tmr_joystick_handler.hpp"
+
+// 初始化摇杆
+JS16TMRJoystickDirect joystick;
+js16tmr::JS16TMRJoystickHandler handler;
+
+// 设置
+joystick.begin();
+handler.initialize(&joystick);
+
+// 配置参数
+handler.setDeadzone(200);
+handler.setDirectionRatio(1.0f);
+handler.setRotation(js16tmr::JoystickRotation::ROTATION_180);
+
+// 主循环
+while (true) {
+    handler.update();
+    js16tmr::JoystickDirection direction = handler.getCurrentDirection();
+    bool button = handler.isButtonPressed();
+    
+    // 处理输入...
+}
+```
+
+### 贪吃蛇游戏示例
+
+该库包含一个完整的贪吃蛇游戏实现，展示JS16TMR摇杆功能：
+
+- **经典贪吃蛇玩法**：蛇吃食物后变长，碰撞后死亡
+- **反射式LCD优化**：使用4级灰度确保清晰可见性
+- **网格化移动**：精确的摇杆控制，带视觉反馈
+- **分数跟踪**：实时分数显示和游戏状态管理
+- **自动校准**：摇杆在启动时自动校准
+
+## 🆕 版本3.1新特性
+
+### 主要新增功能
+
+1. **JS16TMR摇杆集成**：基于RP2040内置ADC的直接摇杆输入支持
+2. **贪吃蛇游戏**：使用JS16TMR摇杆控制的完整贪吃蛇游戏实现
+3. **双摇杆支持**：同时支持I2C和JS16TMR摇杆
+4. **高级摇杆处理**：内置滤波、校准、死区和旋转支持
+5. **反射式LCD优化**：4级灰度渲染，确保最佳可见性
+6. **自动校准**：摇杆启动时自动校准中心点
+
+### 版本2.0特性（保留）
 
 1. **ST7306支持**：新增对ST7306控制器的完整支持，包含4级灰度显示
 2. **UI抽象层**：受Adafruit GFX启发的全新硬件无关图形接口
@@ -251,7 +348,8 @@ void windmillAnimation() {
 - `ST7306_Display`：ST7306演示应用程序
 - `st7306_fullscreen_text_demo`：ST7306满屏文字显示演示（792字符，22行）
 - `AnalogClockWiFi`：支持WiFi的NTP时钟
-- `MazeGame`：交互式迷宫游戏演示
+- `MazeGame`：使用I2C摇杆的交互式迷宫游戏
+- `SnakeGameJS16TMR`：使用JS16TMR摇杆的贪吃蛇游戏（新增）
 
 每个目标都包含展示相应控制器功能的综合示例。
 

@@ -46,6 +46,10 @@ set(JOYSTICK_LIBRARIES
     hardware_i2c
 )
 
+set(JS16TMR_JOYSTICK_LIBRARIES
+    hardware_adc
+)
+
 set(WIFI_LIBRARIES
     hardware_rtc
     hardware_clocks
@@ -126,6 +130,28 @@ function(create_st7306_target_with_includes TARGET_NAME MAIN_SOURCE EXTRA_INCLUD
     pico_add_extra_outputs(${TARGET_NAME})
 endfunction()
 
+# 创建带JS16TMR摇杆的ST7306可执行文件的函数
+function(create_st7306_target_with_js16tmr TARGET_NAME MAIN_SOURCE)
+    add_executable(${TARGET_NAME}
+        ${MAIN_SOURCE}
+        src/st73xx/st7306_driver.cpp
+        src/fonts/st73xx_font.cpp
+        src/st73xx/st73xx_ui.cpp
+        src/js16tmr_joystick/js16tmr_joystick_direct.cpp
+        src/js16tmr_joystick/js16tmr_joystick_handler.cpp
+    )
+    
+    target_include_directories(${TARGET_NAME} PRIVATE 
+        ${COMMON_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_LIST_DIR}/include/js16tmr_joystick
+    )
+    target_link_libraries(${TARGET_NAME} PUBLIC ${COMMON_LIBRARIES} ${JS16TMR_JOYSTICK_LIBRARIES})
+    
+    pico_enable_stdio_usb(${TARGET_NAME} 1)
+    pico_enable_stdio_uart(${TARGET_NAME} 1)
+    pico_add_extra_outputs(${TARGET_NAME})
+endfunction()
+
 
 # =============================================================================
 # 创建可执行文件
@@ -151,6 +177,12 @@ create_st7306_target_with_libs(AnalogClockWiFi
     examples/analog_clock_wifi.cpp 
     "${WIFI_LIBRARIES}"
 )
+
+# JS16TMR贪吃蛇游戏
+create_st7306_target_with_js16tmr(SnakeGameJS16TMR 
+    examples/snake_game_js16tmr.cpp
+)
+
 
 
 

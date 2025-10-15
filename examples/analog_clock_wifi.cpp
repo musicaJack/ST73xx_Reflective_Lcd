@@ -19,8 +19,8 @@
 #include <time.h>
 
 // WiFi配置
-#define WIFI_SSID "PLUG AND PLAY"
-#define WIFI_PASSWORD "PNP-2023"
+#define WIFI_SSID "YANGTANG"
+#define WIFI_PASSWORD "1q2w3e4r!Q@W#E$R"
 
 // NTP配置
 #define NTP_SERVER "182.92.12.11" // 网易NTP服务器
